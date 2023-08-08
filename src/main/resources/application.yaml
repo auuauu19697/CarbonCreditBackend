@@ -1,0 +1,8 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:postgresql://ep-nameless-resonance-05774490.ap-southeast-1.aws.neon.tech/neondb?user=sleepyteam3233&password=cdGAwzyx27pL
+    username: sleepyteam3233
+    password: cdGAwzyx27pL
