@@ -1,13 +1,22 @@
 package com.example.CarbonBackend.service;
 
+import com.example.CarbonBackend.entity.Coupon;
+import com.example.CarbonBackend.entity.Report;
 import com.example.CarbonBackend.entity.User;
 import com.example.CarbonBackend.exception.BaseException;
+import com.example.CarbonBackend.exception.CouponException;
 import com.example.CarbonBackend.exception.UserException;
+import com.example.CarbonBackend.model.BuyCouponReq;
 import com.example.CarbonBackend.model.DonateRequest;
+import com.example.CarbonBackend.model.ReportReq;
 import com.example.CarbonBackend.model.UserData;
+import com.example.CarbonBackend.repository.CouponRepository;
+import com.example.CarbonBackend.repository.ReportRepository;
 import com.example.CarbonBackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -15,8 +24,14 @@ public class UserService {
 
     private final UserRepository repository;
 
-    public UserService(UserRepository repository) {
+    private final CouponRepository couponRepository;
+
+    private final ReportRepository reportRepository;
+
+    public UserService(UserRepository repository, CouponRepository couponRepository, ReportRepository reportRepository) {
         this.repository = repository;
+        this.couponRepository = couponRepository;
+        this.reportRepository = reportRepository;
     }
 
     public Optional<User> findByEmail(String email) {
@@ -84,5 +99,61 @@ public class UserService {
 
         repository.save(donator);
         repository.save(receiver);
+    }
+
+    public void buyCoupon(BuyCouponReq request) throws BaseException {
+
+        Optional<User> buyer_opt = findByEmail(request.getEmail());
+        if(buyer_opt.isEmpty()) throw UserException.emailNotFound();
+        User buyer = buyer_opt.get();
+
+        Optional<Coupon> coupon_opt = couponRepository.findByName(request.getCoupon_name());
+        Coupon coupon = coupon_opt.get();
+
+        int amount = request.getAmount();
+        if(coupon.getAvailable() == 0){
+            throw CouponException.outOfStocks();
+        }
+        if(coupon.getAvailable() < amount) {
+            throw CouponException.notEnough();
+        }
+
+        int price = coupon.getPrice()*amount;
+        if(buyer.getPoint() < price){
+            throw UserException.notEnoughPoint();
+        }
+
+        List<Integer> allcoupons = buyer.getCoupon_id();
+        if(allcoupons == null) allcoupons = new ArrayList<Integer>();
+        for(int i=0;i < amount; i++){
+            allcoupons.add(coupon.getId());
+        }
+        coupon.setAvailable(coupon.getAvailable() - amount);
+        buyer.setPoint(buyer.getPoint() - price);
+        buyer.setCoupon_id(allcoupons);
+        repository.save(buyer);
+        couponRepository.save(coupon);
+    }
+
+    public void report(ReportReq request) throws BaseException {
+
+        Optional<User> opt = findByEmail(request.getReporter());
+        if(opt.isEmpty()) {
+            throw UserException.emailNotFound();
+        }
+
+        Report report = new Report();
+        report.setName(request.getName());
+        report.setDescription(request.getDescription());
+        report.setImage(request.getImage());
+        report.setDate(request.getDate());
+        report.setStatus(2);
+        report.setReporter(request.getReporter());
+
+        System.out.println(request.getName());
+        System.out.println(request.getDescription());
+        System.out.println(request.getDate());
+        System.out.println(request.getReporter());
+        reportRepository.save(report);
     }
 }

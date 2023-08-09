@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Entity(name = "m_user")
 public class User extends BaseEntity{
@@ -29,5 +31,6 @@ public class User extends BaseEntity{
     @Column
     private int highscore;
 
-
+    @Column
+    private List<Integer> coupon_id;
 }

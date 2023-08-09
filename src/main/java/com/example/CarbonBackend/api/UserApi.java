@@ -2,9 +2,7 @@ package com.example.CarbonBackend.api;
 
 import com.example.CarbonBackend.business.UserBusiness;
 import com.example.CarbonBackend.exception.BaseException;
-import com.example.CarbonBackend.model.DonateRequest;
-import com.example.CarbonBackend.model.UserData;
-import com.example.CarbonBackend.model.UserRequest;
+import com.example.CarbonBackend.model.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,9 +28,23 @@ public class UserApi {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("donate")
+    @PostMapping("/donate")
     public ResponseEntity<Object> donate(@RequestBody DonateRequest request) throws BaseException {
         userBusiness.donate(request);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/buycoupon")
+    public ResponseEntity<Object> buyCoupon(@RequestBody BuyCouponReq request) throws BaseException {
+        userBusiness.buyCoupon(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/report")
+    public ResponseEntity<Object> report(@RequestBody ReportReq request) throws BaseException {
+        userBusiness.report(request);
+        return ResponseEntity.ok().build();
+    }
+
+
 }

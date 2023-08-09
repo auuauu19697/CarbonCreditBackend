@@ -16,6 +16,6 @@ public class UserException extends BaseException{
     }
 
     public static UserException notEnoughPoint(){
-        return new UserException("email.already.exist");
+        return new UserException("point.not.enough");
     }
 }
